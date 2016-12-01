@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Thời Tiết</string>
+    <string name="your_location">Vị trí hiện tại</string>
+    <string name="unknow">Không rõ</string>
+
+    <string name="city_name">Thành phố</string>
+    <string name="country_name">Quốc gia</string>
+    <string name="timezone">Múi Giờ</string>
+
+    <string name="iconPhrase">Trạng thái</string>
+    <string name="day">Ban ngày</string>
+    <string name="night">Ban đêm</string>
+    <string name="temperature">Nhiệt độ</string>
+    <string name="precipitationProbability">Xác suất mưa</string>
+    <string name="mobileLink">Chi tiết</string>
+</resources>
