@@ -65,6 +65,7 @@ public class CustomRequest extends Request<String> {
                 i++;
             }
             url = stringBuilder.toString();
+            RLog.i(url);
         }
         return url;
     }

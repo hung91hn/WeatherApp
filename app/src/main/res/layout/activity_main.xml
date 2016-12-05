@@ -1,67 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
-    tools:context="com.android1.weather.MainActivity">
+    tools:openDrawer="start">
 
-    <TextView
-        android:id="@+id/tv_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/your_location" />
-    <TextView
-        android:id="@+id/tv_city"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/city_name" />
-    <TextView
-        android:id="@+id/tv_country"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/country_name" />
-    <TextView
-        android:id="@+id/tv_TimeZone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/timezone" />
+    <include
+        layout="@layout/main_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    <ImageView
-        android:layout_gravity="center_horizontal"
-        android:id="@+id/iv_WeatherIcon"
-        android:src="@mipmap/ic_launcher"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"/>
-    <TextView
-        android:id="@+id/tv_weatherPhrase"
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/iconPhrase" />
-    <TextView
-        android:id="@+id/tv_dayLight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/day" />
-    <TextView
-        android:id="@+id/tv_Temperature"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/temperature" />
-    <TextView
-        android:id="@+id/tv_PrecipitationProbability"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/precipitationProbability" />
-    <TextView
-        android:id="@+id/tv_MobileLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/mobileLink" />
+        android:layout_height="match_parent"
+        android:layout_gravity="start">
 
+        <include
+            layout="@layout/nav_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.design.widget.NavigationView>
 
-
-</LinearLayout>
+</android.support.v4.widget.DrawerLayout>

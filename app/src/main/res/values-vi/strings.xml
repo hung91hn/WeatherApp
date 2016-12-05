@@ -3,7 +3,7 @@
     <string name="your_location">Vị trí hiện tại</string>
     <string name="unknow">Không rõ</string>
 
-    <string name="city_name">Thành phố</string>
+    <string name="area_name">Khu vực</string>
     <string name="country_name">Quốc gia</string>
     <string name="timezone">Múi Giờ</string>
 
@@ -13,4 +13,18 @@
     <string name="temperature">Nhiệt độ</string>
     <string name="precipitationProbability">Xác suất mưa</string>
     <string name="mobileLink">Chi tiết</string>
+
+    <string-array name="day_in_week">
+        <item>Chủ nhật</item>
+        <item>Thứ 2</item>
+        <item>Thứ 3</item>
+        <item>Thứ 4</item>
+        <item>Thứ 5</item>
+        <item>Thứ 6</item>
+        <item>Thứ 7</item>
+    </string-array>
+
+    <string name="add_location">Thêm địa điểm</string>
+    <string name="insert_area">Nhập tên khu vực</string>
+    <string name="use_gps">Định vị</string>
 </resources>

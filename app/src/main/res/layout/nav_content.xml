@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:background="@android:color/darker_gray"
+        android:minHeight="200dp"/>
+
+    <TextView
+        android:id="@+id/tv_nav_temp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/iv_nav"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:text="@string/temperature"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+    <TextView
+        android:id="@+id/rv_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/iv_nav"
+        android:text="RecycleView" />
+
+    <Button
+        android:id="@+id/bt_nav_gps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rv_area"
+        android:text="@string/use_gps" />
+
+    <android.support.v7.widget.SearchView
+        android:id="@+id/sv_nav_area"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_nav_gps" />
+
+
+</RelativeLayout>
