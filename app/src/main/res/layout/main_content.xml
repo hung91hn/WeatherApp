@@ -6,12 +6,6 @@
     android:padding="@dimen/activity_vertical_margin">
 
     <TextView
-        android:id="@+id/tv_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/your_location" />
-
-    <TextView
         android:id="@+id/tv_city"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

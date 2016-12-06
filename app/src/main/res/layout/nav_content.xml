@@ -35,11 +35,12 @@
         android:layout_below="@+id/rv_area"
         android:text="@string/use_gps" />
 
-    <android.support.v7.widget.SearchView
-        android:id="@+id/sv_nav_area"
+    <Button
+        android:id="@+id/bt_nav_insertArea"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/bt_nav_gps" />
+        android:layout_below="@+id/bt_nav_gps"
+        android:text="@string/insert_area"/>
 
 
 </RelativeLayout>

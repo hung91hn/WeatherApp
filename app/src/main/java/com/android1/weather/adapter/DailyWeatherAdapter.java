@@ -49,7 +49,7 @@ public class DailyWeatherAdapter extends RecyclerView.Adapter<HourlyWeatherHolde
             e.printStackTrace();
         }
         Glide.with(activity).load(weatherDaily.getIcon()).into(holder.ivIcon);
-        holder.tvTemp.setText(weatherDaily.getTempValueMin() + "°" + weatherDaily.getTempUnit()
+        holder.tvTemp.setText(weatherDaily.getTempValueMin()
                 + "-" + weatherDaily.getTempValueMAX() + "°" + weatherDaily.getTempUnit());
     }
 

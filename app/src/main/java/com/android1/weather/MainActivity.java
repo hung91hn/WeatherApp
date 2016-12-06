@@ -2,6 +2,7 @@ package com.android1.weather;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -13,7 +14,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,21 +49,23 @@ import static com.android1.weather.utils.JsonUtil.getInt;
 import static com.android1.weather.utils.JsonUtil.getJSONObject;
 
 public class MainActivity extends AppCompatActivity {
+    private final String API_KEY = "JVZgNJ8lEM4EpcoHyuQvEePb3HjPS6A4";
     private final String API_LOCATION = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search";
     private final String API_WEATHER_HOURLY = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/";
     private final String API_WEATHER_DAILY = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/";
-    private final String API_KEY = "JVZgNJ8lEM4EpcoHyuQvEePb3HjPS6A4";
     private final String URL_WEATHER_ICON = "http://developer.accuweather.com/sites/default/files/";
     private final String URL_WEATHER_ICON_TYPE = "-s.png";
     private final int FAKETEMP = 10000;
     private String unknow;
     private Resources resources;
     private GoogleApiClient mClient;
-    private TextView tvLocation, tvCity, tvCountry, tvTimeZone, tvWeatherPhrase, tvDayLight, tvTemperature, tvPrecipitationProbability;
-    private Button btNavGPS;
-    private SearchView svNavArea;
-    private ImageView ivWeatherIcon,ivNav;
+    private TextView tvCity, tvCountry, tvTimeZone, tvWeatherPhrase, tvDayLight, tvTemperature, tvPrecipitationProbability, tvNavTemp;
+    private Button btNavGPS, btNavArea;
+    private ImageView ivWeatherIcon, ivNav;
     private RecyclerView rvHourly, rvDaily;
+
+    private SharedPreferences sharedPreferences;
+    private boolean tempUnitC;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,24 +79,33 @@ public class MainActivity extends AppCompatActivity {
 
         mClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API).build();
+
+
+        sharedPreferences = getSharedPreferences("WEATHER", MODE_PRIVATE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        tempUnitC = sharedPreferences.getBoolean("Donvi", true);
     }
 
     private void initView() {
-        tvLocation = (TextView) findViewById(R.id.tv_location);
         tvCity = (TextView) findViewById(R.id.tv_city);
         tvCountry = (TextView) findViewById(R.id.tv_country);
         tvTimeZone = (TextView) findViewById(R.id.tv_TimeZone);
 
         ivWeatherIcon = (ImageView) findViewById(R.id.iv_WeatherIcon);
-        ivNav= (ImageView) findViewById(R.id.iv_nav);
+        ivNav = (ImageView) findViewById(R.id.iv_nav);
         tvWeatherPhrase = (TextView) findViewById(R.id.tv_weatherPhrase);
         tvDayLight = (TextView) findViewById(R.id.tv_dayLight);
         tvTemperature = (TextView) findViewById(R.id.tv_Temperature);
         tvPrecipitationProbability = (TextView) findViewById(R.id.tv_PrecipitationProbability);
-        btNavGPS= (Button) findViewById(R.id.bt_nav_gps);
+        tvNavTemp = (TextView) findViewById(R.id.tv_nav_temp);
+        btNavGPS = (Button) findViewById(R.id.bt_nav_gps);
         btNavGPS.setOnClickListener(clickListener);
-
-        svNavArea= (SearchView) findViewById(R.id.sv_nav_area);
+        btNavArea= (Button) findViewById(R.id.bt_nav_insertArea);
+        btNavArea.setOnClickListener(clickListener);
 
         rvHourly = (RecyclerView) findViewById(R.id.rv_main_hourly);
         rvHourly.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -135,16 +146,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    View.OnClickListener clickListener=new View.OnClickListener() {
+    View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            switch (view.getId()){
+            switch (view.getId()) {
                 case R.id.bt_nav_gps:
                     getLocation();
+                    break;
+                case R.id.bt_nav_insertArea:
+                    Intent i=new Intent(MainActivity.this,SearchAreaActivity.class);
+                    startActivity(i);
                     break;
             }
         }
     };
+
+    private int toCelsius(int fahrenheit) {
+        return (fahrenheit - 32) * 5 / 9;
+    }
 
 
     //Weather theo gsm
@@ -228,7 +247,12 @@ public class MainActivity extends AppCompatActivity {
             JSONObject jsonObjectTemp = JsonUtil.getJSONObject(jsonObjectNow, "Temperature");
             int value = getInt(jsonObjectTemp, "Value", FAKETEMP);
             String unit = JsonUtil.getString(jsonObjectTemp, "Unit", "C");
+            if (tempUnitC && unit.equals("F")) {
+                unit = "C";
+                value = toCelsius(value);
+            }
             tvTemperature.setText(resources.getString(R.string.temperature) + ": " + value + "°" + unit);
+            tvNavTemp.setText(resources.getString(R.string.temperature) + ": " + value + "°" + unit);
 
             tvPrecipitationProbability.setText(resources.getString(R.string.precipitationProbability) + ": " + JsonUtil.getString(jsonObjectNow, "PrecipitationProbability", unknow) + "%");
 
@@ -255,11 +279,20 @@ public class MainActivity extends AppCompatActivity {
                 int weatherIcon = getInt(jsonObjectDay, "Icon", 0);
                 weatherDaily.setIcon(URL_WEATHER_ICON + String.format("%02d", weatherIcon) + URL_WEATHER_ICON_TYPE);
                 JSONObject jsonObjectTemp = JsonUtil.getJSONObject(jsonObjectADay, "Temperature");
-                JSONObject jsonObjectM = JsonUtil.getJSONObject(jsonObjectTemp, "Minimum");
-                weatherDaily.setTempValueMin(JsonUtil.getInt(jsonObjectM, "Value", FAKETEMP));
-                jsonObjectM = JsonUtil.getJSONObject(jsonObjectTemp, "Maximum");
-                weatherDaily.setTempValueMAX(JsonUtil.getInt(jsonObjectM, "Value", FAKETEMP));
-                weatherDaily.setTempUnit(JsonUtil.getString(jsonObjectM, "Unit", "C"));
+                JSONObject jsonObjectMin = JsonUtil.getJSONObject(jsonObjectTemp, "Minimum");
+                JSONObject jsonObjectMax = JsonUtil.getJSONObject(jsonObjectTemp, "Maximum");
+
+                int valueMin = JsonUtil.getInt(jsonObjectMin, "Value", FAKETEMP);
+                int valueMax = JsonUtil.getInt(jsonObjectMax, "Value", FAKETEMP);
+                String unit = JsonUtil.getString(jsonObjectMax, "Unit", "C");
+                if (tempUnitC && unit.equals("F")) {
+                    unit = "C";
+                    valueMin = toCelsius(valueMin);
+                    valueMax = toCelsius(valueMax);
+                }
+                weatherDaily.setTempValueMin(valueMin);
+                weatherDaily.setTempValueMAX(valueMax);
+                weatherDaily.setTempUnit(unit);
 
                 allWeatherDailies.add(weatherDaily);
             }
@@ -284,8 +317,15 @@ public class MainActivity extends AppCompatActivity {
             int weatherIcon = getInt(jsonObject, "WeatherIcon", 0);
             weatherHourly.setWeatherIcon(URL_WEATHER_ICON + String.format("%02d", weatherIcon) + URL_WEATHER_ICON_TYPE);
             JSONObject jsonObjectTemp = JsonUtil.getJSONObject(jsonObject, "Temperature");
-            weatherHourly.setTemperatureValue(JsonUtil.getInt(jsonObjectTemp, "Value", FAKETEMP));
-            weatherHourly.setTemperatureUnit(JsonUtil.getString(jsonObjectTemp, "Unit", "C"));
+            int value = JsonUtil.getInt(jsonObjectTemp, "Value", FAKETEMP);
+            String unit = JsonUtil.getString(jsonObjectTemp, "Unit", "C");
+            if (tempUnitC && unit.equals("F")) {
+                unit = "C";
+                value = toCelsius(value);
+            }
+
+            weatherHourly.setTemperatureValue(value);
+            weatherHourly.setTemperatureUnit(unit);
 
             allWeatherHourlies.add(weatherHourly);
         }
