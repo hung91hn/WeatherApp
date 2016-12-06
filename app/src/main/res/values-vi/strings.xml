@@ -30,4 +30,11 @@
 
     <string name="null_location">Không có vị trí nào phù hợp</string>
     <string name="select_location">Hãy chọn vị trí của bạn</string>
+
+    <string name="setting_title">Thiết Lập</string>
+    <string name="level">Đơn vị</string>
+    <string name="caution_bad_weather">Cảnh báo thời tiết xấu</string>
+    <string name="gif_image_weather">Ảnh động thời tiết</string>
+    <string name="update_time">Thời gian update</string>
+    <string name="version">Phiên bản</string>
 </resources>

@@ -2,7 +2,9 @@ package com.android1.weather;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ToggleButton;
 
@@ -11,12 +13,20 @@ public class SettingActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
 
+    private static final String WEATHER="Weather";
+    private static final String TYPE_TEMP="Đơn vị";
+    private static final String NOTIFY="Thông báo";
+    private static final String GIF_IAMGE="Ảnh động";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
-        setTitle("Thiết lập");
-        sharedPreferences = getSharedPreferences("WEATHER", MODE_PRIVATE);
+      //  setTitle("Thiết lập");
+        ActionBar actionBar=getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        sharedPreferences = getSharedPreferences(WEATHER, MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
         addControls();
@@ -26,43 +36,43 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void savePreference() {
-        btnDonvi.setChecked(sharedPreferences.getBoolean("Donvi", true));
+        btnDonvi.setChecked(sharedPreferences.getBoolean(TYPE_TEMP, true));
         btnDonvi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (btnDonvi.isChecked()) {
-                    editor.putBoolean("Donvi", true);
+                    editor.putBoolean(TYPE_TEMP, true);
                     editor.commit();
                 } else {
-                    editor.putBoolean("Donvi", false);
+                    editor.putBoolean(TYPE_TEMP, false);
                     editor.commit();
                 }
 
             }
         });
-        btnThongbao.setChecked(sharedPreferences.getBoolean("Thongbao", true));
+        btnThongbao.setChecked(sharedPreferences.getBoolean(NOTIFY, true));
         btnThongbao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (btnThongbao.isChecked()) {
-                    editor.putBoolean("Thongbao", true);
+                    editor.putBoolean(NOTIFY, true);
                     editor.commit();
                 } else {
-                    editor.putBoolean("Thongbao", false);
+                    editor.putBoolean(NOTIFY, false);
                     editor.commit();
                 }
 
             }
         });
-        btnAnhdong.setChecked(sharedPreferences.getBoolean("Anhdong", true));
+        btnAnhdong.setChecked(sharedPreferences.getBoolean(GIF_IAMGE, true));
         btnAnhdong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (btnAnhdong.isChecked()) {
-                    editor.putBoolean("Anhdong", true);
+                    editor.putBoolean(GIF_IAMGE, true);
                     editor.commit();
                 } else {
-                    editor.putBoolean("Anhdong", false);
+                    editor.putBoolean(GIF_IAMGE, false);
                     editor.commit();
                 }
 
@@ -72,6 +82,12 @@ public class SettingActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId()==android.R.id.home)
+            finish();
+        return true;
+    }
 
     private void addControls() {
         btnDonvi = (ToggleButton) findViewById(R.id.tg_unit);

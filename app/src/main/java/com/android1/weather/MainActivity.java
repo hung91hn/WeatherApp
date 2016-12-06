@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.menu);
         resources = getResources();
         unknow = resources.getString(R.string.unknow);
         initView();
