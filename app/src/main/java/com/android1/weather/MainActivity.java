@@ -17,8 +17,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -28,6 +31,7 @@ import com.android1.weather.adapter.DailyWeatherAdapter;
 import com.android1.weather.adapter.HourlyWeatherAdapter;
 import com.android1.weather.model.WeatherDaily;
 import com.android1.weather.model.WeatherHourly;
+import com.android1.weather.model.WeatherLocation;
 import com.android1.weather.utils.CustomRequest;
 import com.android1.weather.utils.JsonUtil;
 import com.android1.weather.utils.MySingleton;
@@ -45,8 +49,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
+
+import static android.view.View.GONE;
 import static com.android1.weather.utils.JsonUtil.getInt;
-import static com.android1.weather.utils.JsonUtil.getJSONObject;
 
 public class MainActivity extends AppCompatActivity {
     private final String API_KEY = "JVZgNJ8lEM4EpcoHyuQvEePb3HjPS6A4";
@@ -55,17 +62,25 @@ public class MainActivity extends AppCompatActivity {
     private final String API_WEATHER_DAILY = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/";
     private final String URL_WEATHER_ICON = "http://developer.accuweather.com/sites/default/files/";
     private final String URL_WEATHER_ICON_TYPE = "-s.png";
+    private final String KEY_WEATHER = "WEATHER";
+    private final String KEY_LOCATION = "LocaKey";
     private final int FAKETEMP = 10000;
+    private final int MAX_LOCATION_NUMBER = 5;
     private String unknow;
     private Resources resources;
     private GoogleApiClient mClient;
-    private TextView tvCity, tvCountry, tvTimeZone, tvWeatherPhrase, tvDayLight, tvTemperature, tvPrecipitationProbability, tvNavTemp;
+    private TextView tvCity, tvCountry, tvTimeZone, tvWeatherPhrase, tvDayLight, tvTemperature, tvPrecipitationProbability, tvNavTemp, tvInsertArea;
     private Button btNavGPS, btNavArea;
     private ImageView ivWeatherIcon, ivNav;
     private RecyclerView rvHourly, rvDaily;
+    private ListView lvNavArea;
 
     private SharedPreferences sharedPreferences;
     private boolean tempUnitC;
+
+    private Realm realm;
+
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,13 +97,18 @@ public class MainActivity extends AppCompatActivity {
                 .addApi(LocationServices.API).build();
 
 
-        sharedPreferences = getSharedPreferences("WEATHER", MODE_PRIVATE);
-    }
+        sharedPreferences = getSharedPreferences(KEY_WEATHER, MODE_PRIVATE);
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        tempUnitC = sharedPreferences.getBoolean("Donvi", true);
+        realm = Realm.getDefaultInstance();
+
+        String locaKey = sharedPreferences.getString(KEY_LOCATION, null);
+        if (locaKey != null) {
+            RealmResults<WeatherLocation> allLocations = realm.where(WeatherLocation.class).findAll();
+            for (WeatherLocation location : allLocations) {
+                if (location.getLocationKey().equals(locaKey))
+                    setLocationAndWeather(location);
+            }
+        }
     }
 
     private void initView() {
@@ -103,16 +123,49 @@ public class MainActivity extends AppCompatActivity {
         tvTemperature = (TextView) findViewById(R.id.tv_Temperature);
         tvPrecipitationProbability = (TextView) findViewById(R.id.tv_PrecipitationProbability);
         tvNavTemp = (TextView) findViewById(R.id.tv_nav_temp);
+        tvInsertArea = (TextView) findViewById(R.id.tv_insertArea);
         btNavGPS = (Button) findViewById(R.id.bt_nav_gps);
         btNavGPS.setOnClickListener(clickListener);
-        btNavArea= (Button) findViewById(R.id.bt_nav_insertArea);
+        btNavArea = (Button) findViewById(R.id.bt_nav_insertArea);
         btNavArea.setOnClickListener(clickListener);
 
         rvHourly = (RecyclerView) findViewById(R.id.rv_main_hourly);
         rvHourly.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvDaily = (RecyclerView) findViewById(R.id.rv_main_daily);
         rvDaily.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        lvNavArea = (ListView) findViewById(R.id.lv_area);
+        lvNavArea.setOnItemClickListener(itemClickListener);
+        lvNavArea.setOnItemLongClickListener(itemLongClickListener);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        tempUnitC = sharedPreferences.getBoolean("Donvi", true);
+
+        setListLocation();
+    }
+
+    private void setListLocation() {
+        RealmResults<WeatherLocation> allLocations = realm.where(WeatherLocation.class).findAll();
+        int size = allLocations.size();
+
+        ArrayList<String> allLocaName = new ArrayList<>();
+        for (int i = 0; i < size; i++)
+            allLocaName.add(allLocations.get(i).toString());
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, allLocaName);
+        lvNavArea.setAdapter(adapter);
+
+        if (allLocations.size() < MAX_LOCATION_NUMBER) {
+            tvInsertArea.setText(R.string.insert_area);
+            btNavArea.setVisibility(View.VISIBLE);
+            btNavGPS.setVisibility(View.VISIBLE);
+        } else {
+            tvInsertArea.setText(R.string.delete_location);
+            btNavArea.setVisibility(GONE);
+            btNavGPS.setVisibility(GONE);
+        }
     }
 
     @Override
@@ -126,6 +179,25 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         mClient.disconnect();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            WeatherLocation location = data.getExtras().getParcelable("loca");
+            addLocationToRealm(location);
+        }
+    }
+
+    private void addLocationToRealm(WeatherLocation location) {
+        if (realm.where(WeatherLocation.class).findAll().size() < MAX_LOCATION_NUMBER) {
+            realm.beginTransaction();
+            WeatherLocation weatherLocation = realm.copyToRealmOrUpdate(location);
+            realm.insertOrUpdate(weatherLocation);
+            realm.commitTransaction();
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -155,10 +227,35 @@ public class MainActivity extends AppCompatActivity {
                     getLocation();
                     break;
                 case R.id.bt_nav_insertArea:
-                    Intent i=new Intent(MainActivity.this,SearchAreaActivity.class);
-                    startActivity(i);
+                    Intent i = new Intent(MainActivity.this, SearchAreaActivity.class);
+                    startActivityForResult(i, 100);
                     break;
             }
+        }
+    };
+
+    AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+            RealmResults<WeatherLocation> allLocations = realm.where(WeatherLocation.class).findAll();
+            WeatherLocation location = allLocations.get(i);
+            setLocationAndWeather(location);
+
+        }
+    };
+
+    AdapterView.OnItemLongClickListener itemLongClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+            realm.beginTransaction();
+            RealmResults<WeatherLocation> allLocations = realm.where(WeatherLocation.class).findAll();
+            allLocations.deleteFromRealm(i);
+            realm.commitTransaction();
+
+            setListLocation();
+            return true;
         }
     };
 
@@ -195,26 +292,26 @@ public class MainActivity extends AppCompatActivity {
     private Response.Listener<String> responseListenerLocation = new Response.Listener<String>() {
         @Override
         public void onResponse(String response) {
-            String localizedName = "LocalizedName";
             JSONObject responseJson = JsonUtil.createJSONObject(response);
-//            tvLocation.setText(resources.getString(R.string.your_location) + ": " + JsonUtil.getString(responseJson, localizedName, unknow));
-            setTitle(JsonUtil.getString(responseJson, localizedName, unknow));
-
-            JSONObject jsonObject = getJSONObject(responseJson, "AdministrativeArea");
-            tvCity.setText(resources.getString(R.string.area_name) + ": " + JsonUtil.getString(jsonObject, localizedName, unknow));
-
-            jsonObject = getJSONObject(responseJson, "Country");
-            tvCountry.setText(resources.getString(R.string.country_name) + ": " + JsonUtil.getString(jsonObject, localizedName, unknow));
-
-            jsonObject = getJSONObject(responseJson, "TimeZone");
-            tvTimeZone.setText(resources.getString(R.string.timezone) + ": " + JsonUtil.getString(jsonObject, "GmtOffset", unknow));
-
-            getWeather(JsonUtil.getString(responseJson, "Key", unknow));
+            WeatherLocation weatherLocation = SearchAreaActivity.getLocationInfo(responseJson);
+            addLocationToRealm(weatherLocation);
+            setListLocation();
+            setLocationAndWeather(weatherLocation);
         }
     };
 
+    private void setLocationAndWeather(WeatherLocation weatherLocation) {
+        sharedPreferences.edit().putString(KEY_LOCATION, weatherLocation.getLocationKey()).apply();
+        setTitle(weatherLocation.getLocalizedName());
+        tvCity.setText(resources.getString(R.string.area_name) + ": " + weatherLocation.getArea());
+        tvCountry.setText(resources.getString(R.string.country_name) + ": " + weatherLocation.getCountry());
+        tvTimeZone.setText(resources.getString(R.string.timezone) + ": " + weatherLocation.getTimeZone());
+
+        setWeather(weatherLocation.getLocationKey());
+    }
+
     //  REQUEST Location Key lấy thời tiết
-    private void getWeather(String locationKey) {
+    private void setWeather(String locationKey) {
         Map<String, String> mapApiParam = new HashMap<>();
         mapApiParam.put("apikey", API_KEY);
         CustomRequest customRequestHourly = new CustomRequest(Request.Method.GET, API_WEATHER_HOURLY + locationKey, mapApiParam, responseListenerWeatherHourly, errorListener);
@@ -242,8 +339,8 @@ public class MainActivity extends AppCompatActivity {
 
             tvWeatherPhrase.setText(resources.getString(R.string.iconPhrase) + ": " + JsonUtil.getString(jsonObjectNow, "IconPhrase", unknow));
             if (JsonUtil.getBoolean(jsonObjectNow, "IsDaylight", false))
-                tvDayLight.setText(resources.getString(R.string.day));
-            else tvDayLight.setText(resources.getString(R.string.night));
+                tvDayLight.setText(R.string.day);
+            else tvDayLight.setText(R.string.night);
 
             JSONObject jsonObjectTemp = JsonUtil.getJSONObject(jsonObjectNow, "Temperature");
             int value = getInt(jsonObjectTemp, "Value", FAKETEMP);

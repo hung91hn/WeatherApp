@@ -65,9 +65,8 @@ public class CustomRequest extends Request<String> {
                 i++;
             }
             url = stringBuilder.toString();
-            RLog.i(url);
         }
-        return url;
+        return url.replaceAll(" ","%20");
     }
 
     @Override

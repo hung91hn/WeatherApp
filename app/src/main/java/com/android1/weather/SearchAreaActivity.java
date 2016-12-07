@@ -1,11 +1,14 @@
 package com.android1.weather;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -33,7 +36,7 @@ public class SearchAreaActivity extends AppCompatActivity {
     private TextView tvSearchResult;
     private ListView lvSearchResult;
 
-    private String nullLocation, selectLocation;
+    private String finddingLocation, nullLocation, selectLocation;
 
     private ArrayList<WeatherLocation> listLocations;
 
@@ -45,9 +48,11 @@ public class SearchAreaActivity extends AppCompatActivity {
 
         tvSearchResult = (TextView) findViewById(R.id.tv_searchArea);
         lvSearchResult = (ListView) findViewById(R.id.lv_searchArea);
+        lvSearchResult.setOnItemClickListener(itemClickListener);
 
         Resources resources = getResources();
 
+        finddingLocation = resources.getString(R.string.findding);
         nullLocation = resources.getString(R.string.null_location);
         selectLocation = resources.getString(R.string.select_location);
     }
@@ -65,6 +70,7 @@ public class SearchAreaActivity extends AppCompatActivity {
     SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String s) {
+            tvSearchResult.setText(finddingLocation);
             Map<String, String> mapApiParam = new HashMap<>();
             mapApiParam.put("apikey", API_KEY);
             mapApiParam.put("q", s);
@@ -79,40 +85,42 @@ public class SearchAreaActivity extends AppCompatActivity {
         }
     };
 
+    public static WeatherLocation getLocationInfo(JSONObject jsonObject) {
+        WeatherLocation weatherLocation = new WeatherLocation();
+        weatherLocation.setLocationKey(JsonUtil.getString(jsonObject, "Key", null));
+        String locaName = JsonUtil.getString(jsonObject, "LocalizedName", null);
+        weatherLocation.setLocalizedName(locaName);
+        JSONObject jsonObject2 = JsonUtil.getJSONObject(jsonObject, "AdministrativeArea");
+        weatherLocation.setArea(JsonUtil.getString(jsonObject2, "LocalizedName", null));
+        jsonObject2 = JsonUtil.getJSONObject(jsonObject, "Country");
+        weatherLocation.setCountry(JsonUtil.getString(jsonObject2, "LocalizedName", null));
+        jsonObject2 = JsonUtil.getJSONObject(jsonObject, "Region");
+        weatherLocation.setRegion(JsonUtil.getString(jsonObject2, "LocalizedName", null));
+        jsonObject2 = JsonUtil.getJSONObject(jsonObject, "TimeZone");
+        weatherLocation.setTimeZone(JsonUtil.getInt(jsonObject2, "GmtOffset", 0));
+        return weatherLocation;
+    }
 
     private Response.Listener<String> responseSearchLocation = new Response.Listener<String>() {
         @Override
         public void onResponse(String response) {
             listLocations = new ArrayList<>();
-            ArrayList<String> listLoca = new ArrayList<>();
 
             JSONArray jsonArray = JsonUtil.createJSONArray(response);
             int lenght = jsonArray.length();
-            Log.i("ListView", "size OJ " + lenght);
             if (lenght != 0) {
-                tvSearchResult.setText(nullLocation);
+                ArrayList<String> loca = new ArrayList<>();
+                tvSearchResult.setText(selectLocation);
                 for (int i = 0; i < lenght; i++) {
-                    WeatherLocation weatherLocation = new WeatherLocation();
-                    JSONObject jsonObject = JsonUtil.getJSONObject(jsonArray, i);
-                    weatherLocation.setLocationKey(JsonUtil.getString(jsonObject, "Key", null));
-                    String locaName = JsonUtil.getString(jsonObject, "LocalizedName", null);
-                    weatherLocation.setLocalizedName(locaName);
-                    listLoca.add(locaName);
-                    JSONObject jsonObject2 = JsonUtil.getJSONObject(jsonObject, "AdministrativeArea");
-                    weatherLocation.setArea(JsonUtil.getString(jsonObject2, "LocalizedName", null));
-                    jsonObject2 = JsonUtil.getJSONObject(jsonObject, "Country");
-                    weatherLocation.setCountry(JsonUtil.getString(jsonObject2, "LocalizedName", null));
-                    jsonObject2 = JsonUtil.getJSONObject(jsonObject, "Region");
-                    weatherLocation.setRegion(JsonUtil.getString(jsonObject2, "LocalizedName", null));
-                    jsonObject2 = JsonUtil.getJSONObject(jsonObject, "TimeZone");
-                    weatherLocation.setTimeZone(JsonUtil.getInt(jsonObject2, "GmtOffset", 0));
+                    WeatherLocation weatherLocation = getLocationInfo(JsonUtil.getJSONObject(jsonArray, i));
+
                     listLocations.add(weatherLocation);
+                    loca.add(weatherLocation.toString());
                 }
-                Log.i("ListView", "size list " + listLoca.size());
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(SearchAreaActivity.this, android.R.layout.simple_list_item_1, listLoca);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(SearchAreaActivity.this, android.R.layout.simple_list_item_1, loca);
                 lvSearchResult.setAdapter(adapter);
             } else {
-                tvSearchResult.setText(selectLocation);
+                tvSearchResult.setText(nullLocation);
                 lvSearchResult.setAdapter(null);
             }
         }
@@ -121,6 +129,18 @@ public class SearchAreaActivity extends AppCompatActivity {
         @Override
         public void onErrorResponse(VolleyError error) {
             RLog.e(error);
+        }
+    };
+
+    private AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            Intent returnIntent = getIntent();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("loca", listLocations.get(i));
+            returnIntent.putExtras(bundle);
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
         }
     };
 

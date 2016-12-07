@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:background="@android:color/darker_gray"
-        android:minHeight="200dp"/>
+        android:minHeight="162dp"/>
 
     <TextView
         android:id="@+id/tv_nav_temp"
@@ -22,17 +22,28 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
-        android:id="@+id/rv_area"
+        android:id="@+id/tv_selectArea"
+        android:layout_below="@+id/iv_nav"
+        android:text="@string/select_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <ListView
+        android:id="@+id/lv_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/iv_nav"
-        android:text="RecycleView" />
+        android:layout_below="@+id/tv_selectArea" />
+    <TextView
+        android:id="@+id/tv_insertArea"
+        android:layout_below="@+id/lv_area"
+        android:text="@string/add_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/bt_nav_gps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rv_area"
+        android:layout_below="@+id/tv_insertArea"
         android:text="@string/use_gps" />
 
     <Button

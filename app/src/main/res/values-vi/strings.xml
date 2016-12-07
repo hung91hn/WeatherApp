@@ -25,11 +25,13 @@
     </string-array>
 
     <string name="add_location">Thêm địa điểm</string>
+    <string name="delete_location">Nhấn và giữ để xóa 1 địa điểm</string>
     <string name="insert_area">Nhập tên khu vực</string>
     <string name="use_gps">Định vị</string>
 
+    <string name="findding">Đang tìm...</string>
     <string name="null_location">Không có vị trí nào phù hợp</string>
-    <string name="select_location">Hãy chọn vị trí của bạn</string>
+    <string name="select_location">Hãy chọn vị trí của bạn (MAX=5)</string>
 
     <string name="setting_title">Thiết Lập</string>
     <string name="level">Đơn vị</string>
