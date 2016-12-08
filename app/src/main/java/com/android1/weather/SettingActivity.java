@@ -13,10 +13,9 @@ public class SettingActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
 
-    private static final String WEATHER="Weather";
-    private static final String TYPE_TEMP="Đơn vị";
-    private static final String NOTIFY="Thông báo";
-    private static final String GIF_IAMGE="Ảnh động";
+    public static final String TYPE_TEMP="Đơn vị";
+    public static final String NOTIFY="Thông báo";
+    public static final String GIF_IAMGE="Ảnh động";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +25,7 @@ public class SettingActivity extends AppCompatActivity {
         ActionBar actionBar=getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        sharedPreferences = getSharedPreferences(WEATHER, MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(MainActivity.KEY_WEATHER, MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
         addControls();
@@ -42,11 +41,11 @@ public class SettingActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (btnDonvi.isChecked()) {
                     editor.putBoolean(TYPE_TEMP, true);
-                    editor.commit();
                 } else {
                     editor.putBoolean(TYPE_TEMP, false);
-                    editor.commit();
                 }
+                    editor.commit();
+                MainActivity.changeSetting=true;
 
             }
         });

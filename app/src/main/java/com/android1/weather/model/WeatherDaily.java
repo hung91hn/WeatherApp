@@ -1,11 +1,16 @@
 package com.android1.weather.model;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by hung91hn on 12/1/16.
  */
 
-public class WeatherDaily {
-    private String dateTime, tempUnit, iconPhrase, mobileLink, icon;
+public class WeatherDaily extends RealmObject{
+    @PrimaryKey
+    private String dateTime;
+    private String tempUnit, iconPhrase, mobileLink, icon;
     private int tempValueMin, tempValueMAX;
 
     public String getDateTime() {

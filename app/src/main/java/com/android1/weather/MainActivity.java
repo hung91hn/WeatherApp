@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private final String API_WEATHER_DAILY = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/";
     private final String URL_WEATHER_ICON = "http://developer.accuweather.com/sites/default/files/";
     private final String URL_WEATHER_ICON_TYPE = "-s.png";
-    private final String KEY_WEATHER = "WEATHER";
+    public static final String KEY_WEATHER = "WEATHER";
     private final String KEY_LOCATION = "LocaKey";
     private final int FAKETEMP = 10000;
     private final int MAX_LOCATION_NUMBER = 5;
@@ -74,9 +75,11 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivWeatherIcon, ivNav;
     private RecyclerView rvHourly, rvDaily;
     private ListView lvNavArea;
+    private SwipeRefreshLayout srlMain;
 
     private SharedPreferences sharedPreferences;
     private boolean tempUnitC;
+    public static boolean changeSetting = false;
 
     private Realm realm;
 
@@ -101,6 +104,13 @@ public class MainActivity extends AppCompatActivity {
 
         realm = Realm.getDefaultInstance();
 
+        tempUnitC = sharedPreferences.getBoolean(SettingActivity.TYPE_TEMP, true);
+
+        setListLocation();
+        reloadCurrentWeather();
+    }
+
+    private void reloadCurrentWeather() {
         String locaKey = sharedPreferences.getString(KEY_LOCATION, null);
         if (locaKey != null) {
             RealmResults<WeatherLocation> allLocations = realm.where(WeatherLocation.class).findAll();
@@ -112,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        srlMain = (SwipeRefreshLayout) findViewById(R.id.srl_main);
+        srlMain.setOnRefreshListener(refreshListener);
+
         tvCity = (TextView) findViewById(R.id.tv_city);
         tvCountry = (TextView) findViewById(R.id.tv_country);
         tvTimeZone = (TextView) findViewById(R.id.tv_TimeZone);
@@ -141,10 +154,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        tempUnitC = sharedPreferences.getBoolean("Donvi", true);
-
-        setListLocation();
+        if (changeSetting) {
+            changeSetting=false;
+            tempUnitC = sharedPreferences.getBoolean(SettingActivity.TYPE_TEMP, true);
+            reloadCurrentWeather();
+        }
     }
 
     private void setListLocation() {
@@ -195,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
             WeatherLocation weatherLocation = realm.copyToRealmOrUpdate(location);
             realm.insertOrUpdate(weatherLocation);
             realm.commitTransaction();
+            setListLocation();
         }
     }
 
@@ -219,7 +234,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    View.OnClickListener clickListener = new View.OnClickListener() {
+    private SwipeRefreshLayout.OnRefreshListener refreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+            reloadCurrentWeather();
+        }
+    };
+
+    private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
@@ -234,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
+    private AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
@@ -245,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    AdapterView.OnItemLongClickListener itemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private AdapterView.OnItemLongClickListener itemLongClickListener = new AdapterView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
 
@@ -333,8 +355,10 @@ public class MainActivity extends AppCompatActivity {
 
             int weatherIcon = getInt(jsonObjectNow, "WeatherIcon", 0);
             if (weatherIcon != 0) {
-                Glide.with(MainActivity.this).load(URL_WEATHER_ICON + String.format("%02d", weatherIcon) + URL_WEATHER_ICON_TYPE).into(ivWeatherIcon);
-                Glide.with(MainActivity.this).load(URL_WEATHER_ICON + String.format("%02d", weatherIcon) + URL_WEATHER_ICON_TYPE).into(ivNav);
+                final String iconInx = String.format("%02d", weatherIcon);
+                String imageUrl = URL_WEATHER_ICON + iconInx + URL_WEATHER_ICON_TYPE;
+                Glide.with(MainActivity.this).load(imageUrl).into(ivWeatherIcon);
+                Glide.with(MainActivity.this).load(imageUrl).into(ivNav);
             }
 
             tvWeatherPhrase.setText(resources.getString(R.string.iconPhrase) + ": " + JsonUtil.getString(jsonObjectNow, "IconPhrase", unknow));
@@ -395,6 +419,7 @@ public class MainActivity extends AppCompatActivity {
                 allWeatherDailies.add(weatherDaily);
             }
             rvDaily.setAdapter(new DailyWeatherAdapter(MainActivity.this, allWeatherDailies));
+            srlMain.setRefreshing(false);
         }
     };
 

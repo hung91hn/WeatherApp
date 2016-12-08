@@ -1,11 +1,16 @@
 package com.android1.weather.model;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by hung91hn on 12/1/16.
  */
 
-public class WeatherHourly {
-    private String dateTime, weatherIcon, iconPhrase, temperatureUnit, mobileLink;
+public class WeatherHourly extends RealmObject {
+    @PrimaryKey
+    private String dateTime;
+    private String weatherIcon, iconPhrase, temperatureUnit, mobileLink;
     private int temperatureValue, precipitationProbability;
     private boolean daylight;
 
