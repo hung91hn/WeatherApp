@@ -13,7 +13,7 @@
 
     <ImageView
         android:id="@+id/iv_hourly_icon"
-        android:src="@mipmap/ic_launcher"
+        android:src="@mipmap/weather"
         android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"/>

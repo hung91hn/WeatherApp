@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
-        android:background="@android:color/darker_gray"
         android:minHeight="162dp"/>
 
     <TextView

@@ -6,16 +6,18 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 
 public class SettingActivity extends AppCompatActivity {
-    private ToggleButton btnThongbao, btnAnhdong, btnDonvi;
+    private ToggleButton btnThongbao, btnDonvi;
+    private NumberPicker npUpdate;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
 
     public static final String TYPE_TEMP="Đơn vị";
     public static final String NOTIFY="Thông báo";
-    public static final String GIF_IAMGE="Ảnh động";
+    public static final String TIME_UPDATE="updateTime";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,12 @@ public class SettingActivity extends AppCompatActivity {
 
         savePreference();
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        editor.putInt(TIME_UPDATE,npUpdate.getValue()).commit();
     }
 
     private void savePreference() {
@@ -63,22 +71,8 @@ public class SettingActivity extends AppCompatActivity {
 
             }
         });
-        btnAnhdong.setChecked(sharedPreferences.getBoolean(GIF_IAMGE, true));
-        btnAnhdong.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (btnAnhdong.isChecked()) {
-                    editor.putBoolean(GIF_IAMGE, true);
-                    editor.commit();
-                } else {
-                    editor.putBoolean(GIF_IAMGE, false);
-                    editor.commit();
-                }
 
-            }
-        });
-
-
+        npUpdate.setValue(sharedPreferences.getInt(TIME_UPDATE,1));
     }
 
     @Override
@@ -91,6 +85,8 @@ public class SettingActivity extends AppCompatActivity {
     private void addControls() {
         btnDonvi = (ToggleButton) findViewById(R.id.tg_unit);
         btnThongbao = (ToggleButton) findViewById(R.id.tg_notifi);
-        btnAnhdong = (ToggleButton) findViewById(R.id.tg_animation);
+        npUpdate= (NumberPicker) findViewById(R.id.np_update);
+        npUpdate.setMinValue(1);
+        npUpdate.setMaxValue(12);
     }
 }

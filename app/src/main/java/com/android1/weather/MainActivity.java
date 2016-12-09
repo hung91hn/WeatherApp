@@ -33,6 +33,7 @@ import com.android1.weather.adapter.HourlyWeatherAdapter;
 import com.android1.weather.model.WeatherDaily;
 import com.android1.weather.model.WeatherHourly;
 import com.android1.weather.model.WeatherLocation;
+import com.android1.weather.services.AutoUpdateService;
 import com.android1.weather.utils.CustomRequest;
 import com.android1.weather.utils.JsonUtil;
 import com.android1.weather.utils.MySingleton;
@@ -57,14 +58,14 @@ import static android.view.View.GONE;
 import static com.android1.weather.utils.JsonUtil.getInt;
 
 public class MainActivity extends AppCompatActivity {
-    private final String API_KEY = "JVZgNJ8lEM4EpcoHyuQvEePb3HjPS6A4";
+    public static final String API_KEY = "JVZgNJ8lEM4EpcoHyuQvEePb3HjPS6A4";
     private final String API_LOCATION = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search";
-    private final String API_WEATHER_HOURLY = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/";
+    public static final String API_WEATHER_HOURLY = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/";
     private final String API_WEATHER_DAILY = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/";
     private final String URL_WEATHER_ICON = "http://developer.accuweather.com/sites/default/files/";
     private final String URL_WEATHER_ICON_TYPE = "-s.png";
     public static final String KEY_WEATHER = "WEATHER";
-    private final String KEY_LOCATION = "LocaKey";
+    public static final String KEY_LOCATION = "LocaKey";
     private final int FAKETEMP = 10000;
     private final int MAX_LOCATION_NUMBER = 5;
     private String unknow;
@@ -89,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent pushIntent = new Intent(this, AutoUpdateService.class);
+        startService(pushIntent);
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.menu);
