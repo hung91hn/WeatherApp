@@ -10,7 +10,7 @@
     <application
         android:name=".WeatherApp"
         android:allowBackup="true"
-        android:icon="@mipmap/weather"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -21,6 +21,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".widget.WidgetHourlyProvider">
+           <intent-filter>
+               <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+           </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/weather_appwidget"/>
+        </receiver>
         <activity
             android:name=".SettingActivity"
             android:label="@string/setting_title" />
