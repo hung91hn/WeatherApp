@@ -3,10 +3,7 @@ package com.android1.weather;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
@@ -48,12 +45,6 @@ public class SearchAreaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_area);
         setTitle(getResources().getString(R.string.insert_area));
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        ColorDrawable colorDrawable=new ColorDrawable();
-        colorDrawable.setColor(Color.parseColor("#696969"));
-        actionBar.setBackgroundDrawable(colorDrawable);
 
         tvSearchResult = (TextView) findViewById(R.id.tv_searchArea);
         lvSearchResult = (ListView) findViewById(R.id.lv_searchArea);

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin"
-    android:background="@drawable/background"
     tools:context="com.android1.weather.SettingActivity">
 
     <LinearLayout
