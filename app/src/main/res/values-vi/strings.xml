@@ -13,6 +13,8 @@
     <string name="temperature">Nhiệt độ</string>
     <string name="precipitationProbability">Xác suất mưa</string>
     <string name="mobileLink">Chi tiết</string>
+    <string name="hourly">Thời tiết hàng giờ</string>
+    <string name="daily">Thời tiết hàng ngày</string>
 
     <string-array name="day_in_week">
         <item>Chủ nhật</item>

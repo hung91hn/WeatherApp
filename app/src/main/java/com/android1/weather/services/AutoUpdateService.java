@@ -5,8 +5,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
@@ -100,9 +98,7 @@ public class AutoUpdateService extends Service {
                     // hieenj notifi
                     Intent intent = new Intent(AutoUpdateService.this, MainActivity.class);
                     PendingIntent pi = PendingIntent.getActivity(AutoUpdateService.this, 0, intent, 0);
-                    Bitmap bm = BitmapFactory.decodeResource(getResources(), R.mipmap.weather_15);
                     Notification notification = new NotificationCompat.Builder(AutoUpdateService.this)
-                            .setSmallIcon(R.mipmap.weather_15)
                             .setContentTitle(getResources().getString(R.string.app_name))
                             .setContentText("Thời tiết xấu")
                             .setContentIntent(pi)

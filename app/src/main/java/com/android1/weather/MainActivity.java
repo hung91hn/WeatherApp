@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +24,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -72,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
     private Resources resources;
     private GoogleApiClient mClient;
     private TextView tvCity, tvCountry, tvTimeZone, tvWeatherPhrase, tvDayLight, tvTemperature, tvPrecipitationProbability, tvNavTemp, tvInsertArea;
-    private Button btNavGPS, btNavArea;
+    private Button btNavArea;
+    private ImageButton btNavGPS;
     private ImageView ivWeatherIcon, ivNav;
     private RecyclerView rvHourly, rvDaily;
     private ListView lvNavArea;
@@ -94,10 +99,12 @@ public class MainActivity extends AppCompatActivity {
         Intent pushIntent = new Intent(this, AutoUpdateService.class);
         startService(pushIntent);
 
+        resources = getResources();
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeAsUpIndicator(R.drawable.menu);
-        resources = getResources();
+        Drawable drawable = resources.getDrawable(R.drawable.menu);
+        drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        actionBar.setHomeAsUpIndicator(drawable);
         unknow = resources.getString(R.string.unknow);
         initView();
 
@@ -142,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         tvPrecipitationProbability = (TextView) findViewById(R.id.tv_PrecipitationProbability);
         tvNavTemp = (TextView) findViewById(R.id.tv_nav_temp);
         tvInsertArea = (TextView) findViewById(R.id.tv_insertArea);
-        btNavGPS = (Button) findViewById(R.id.bt_nav_gps);
+        btNavGPS = (ImageButton) findViewById(R.id.bt_nav_gps);
         btNavGPS.setOnClickListener(clickListener);
         btNavArea = (Button) findViewById(R.id.bt_nav_insertArea);
         btNavArea.setOnClickListener(clickListener);
@@ -160,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (changeSetting) {
-            changeSetting=false;
+            changeSetting = false;
             tempUnitC = sharedPreferences.getBoolean(SettingActivity.TYPE_TEMP, true);
             reloadCurrentWeather();
         }
@@ -229,7 +236,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                ((DrawerLayout) findViewById(R.id.drawer_layout)).openDrawer(GravityCompat.START);
+                DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+                if (drawerLayout.isDrawerOpen(GravityCompat.START))
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                else
+                    drawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.menu_setting:
                 startActivity(new Intent(this, SettingActivity.class));

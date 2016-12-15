@@ -38,19 +38,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <Button
+    <ImageButton
         android:id="@+id/bt_nav_gps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_insertArea"
-        android:text="@string/use_gps" />
+        android:src="@android:drawable/ic_menu_mylocation"/>
 
     <Button
         android:id="@+id/bt_nav_insertArea"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/bt_nav_gps"
-        android:text="@string/insert_area"/>
+        android:text="@string/insert_area"
+        android:layout_alignTop="@+id/bt_nav_gps"
+        android:layout_alignBottom="@+id/bt_nav_gps"
+        android:layout_toRightOf="@+id/bt_nav_gps" />
 
 
 </RelativeLayout>

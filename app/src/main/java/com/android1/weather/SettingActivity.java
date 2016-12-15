@@ -10,13 +10,12 @@ import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 
 public class SettingActivity extends AppCompatActivity {
-    private ToggleButton btnThongbao, btnDonvi;
+    private ToggleButton btnDonvi;
     private NumberPicker npUpdate;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
 
     public static final String TYPE_TEMP="Đơn vị";
-    public static final String NOTIFY="Thông báo";
     public static final String TIME_UPDATE="updateTime";
 
     @Override
@@ -57,20 +56,6 @@ public class SettingActivity extends AppCompatActivity {
 
             }
         });
-        btnThongbao.setChecked(sharedPreferences.getBoolean(NOTIFY, true));
-        btnThongbao.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (btnThongbao.isChecked()) {
-                    editor.putBoolean(NOTIFY, true);
-                    editor.commit();
-                } else {
-                    editor.putBoolean(NOTIFY, false);
-                    editor.commit();
-                }
-
-            }
-        });
 
         npUpdate.setValue(sharedPreferences.getInt(TIME_UPDATE,1));
     }
@@ -84,7 +69,6 @@ public class SettingActivity extends AppCompatActivity {
 
     private void addControls() {
         btnDonvi = (ToggleButton) findViewById(R.id.tg_unit);
-        btnThongbao = (ToggleButton) findViewById(R.id.tg_notifi);
         npUpdate= (NumberPicker) findViewById(R.id.np_update);
         npUpdate.setMinValue(1);
         npUpdate.setMaxValue(12);
